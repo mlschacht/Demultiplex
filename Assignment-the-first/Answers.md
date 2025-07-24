@@ -2,7 +2,7 @@
 
 ## Part 1
 1. Be sure to upload your Python script. Provide a (relative, not absolute) link to it here:
-
+phred coding would be 33 or 64
 | File name | label | Read length | Phred encoding |
 |---|---|---|---|
 | 1294_S1_L008_R1_001.fastq.gz |  |  |  |
