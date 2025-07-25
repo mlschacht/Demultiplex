@@ -32,25 +32,64 @@ All unknown files are going to be reads where one or both of the indexes are not
 
 Done!
 
-4. Pseudocode
+## 4. Pseudocode
     1. Open all 4 fastq files for each of the 4 runs
     2. Go through the 4 files record by record
         3. Check if the record is considered "unknown"
             Do the indexes NOT match those that are in our expected list of indexes?
             Is the quality NOT above the established threshold?
-                Mark this record's status as "unknown" and skip the rest of the checks to put it into the designated "unknown" files.
+                Yes - Mark this record's status as "unknown" and skip the rest of the checks to put it into the designated "unknown" files.
+                Increment the unknown counter.
         4. Check if the record is considered "matched" or "hopped"
             Do the indexes match?
                 Yes! - then mark this record's status as "matched" and skip the rest of the checks to put it into the designated "matched" files.
+                    Increment the matched counter for this index.
                 No! - then mark this record's status as "hopped" and skip the rest of the checks to put it into the designated "hopped" files.
+                    Increment the hopped counter for this pair of indexes.
     5. Grab the 4 lines of read 1 and the 4 lines of read 2.
     6. Based on their marked status, append the appropriate file with that record
         For example, for matched records, open 2 files for this index to store the read 1 match and read 2 match.
                     for the hopped records, open 2 files for ALL hopped records to store read 1 and read 2.
                     for the unknown records, open 2 files for ALL unmatched records to store read 1 and read 2.
         When these records are being added, the indexes for read 1 and read 2 will be added to the end of each header line.
+    7. Print out to the terminal:
+        - the number of read-pairs with properly matched indexes (per index-pair)
+        - the total number of read pairs with index-hopping observed
+        - the number of index-hopping PER each pair of indexes. For example, A swapped with B 7 times, and B swapped with A once.
+        - the number of read-pairs with unknown index(es).
+
+
 5. High level functions. For each function, be sure to include:
     1. Description/doc string
     2. Function headers (name and parameters)
     3. Test examples for individual functions
     4. Return statement
+    ```python
+    def make_reverse_complement(DNA: str) ->  str:
+        ```Takes in a DNA string and returns the reverse complement of that string.```
+        return reverse_complement
+        Input: CAT
+        Output: ATG
+    ```
+    ```python
+    def append_fastq(fq_lines: str, indexes: str, file_name: str):
+        ```Take in the 4 fastq record lines and the indexes. Append the header line with the read's corresponding indexes. Then append to the desired file```
+        return None
+    ```
+    Input: fq_lines:
+    ```
+    "@B1_index_matched_R1:83:HJKJNBBXX:8:1101:1265:1191 1:N:0:1
+    AAAAAAAATTCCCAGAGACATCAGTACCCAGTTGGTTCAGACAGTTCCTCTATTGGTTGACAAGGTCTTCATTTCTAGTGATATCAACACGGTGTCTACAA
+    +
+    IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII"
+    ```
+    indexes: AAAAAAAA-AAAAAAAA
+    file_name: A_R1.fq
+
+    Output: new record appended to fastq file called A_R1.fq that looks like:
+    ```
+    @B1_index_matched_R1:83:HJKJNBBXX:8:1101:1265:1191 1:N:0:1 AAAAAAAA-AAAAAAAA
+    AAAAAAAATTCCCAGAGACATCAGTACCCAGTTGGTTCAGACAGTTCCTCTATTGGTTGACAAGGTCTTCATTTCTAGTGATATCAACACGGTGTCTACAA
+    +
+    IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
+    ```
