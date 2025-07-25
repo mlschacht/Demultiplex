@@ -1,27 +1,10 @@
-# Assignment the First
-
-## Part 1
-1. Be sure to upload your Python script. Provide a (relative, not absolute) link to it here:
-phred coding would be 33 or 64
-
-| File name | label | Read length | Phred encoding |
-|---|---|---|---|
-| 1294_S1_L008_R1_001.fastq.gz |Read 1|101bp|Phred 33|
-| 1294_S1_L008_R2_001.fastq.gz |Index 1|8bp|Phred 33|
-| 1294_S1_L008_R3_001.fastq.gz |Index 2|8bp|Phred 33|
-| 1294_S1_L008_R4_001.fastq.gz |Read 2|101|Phred 33|
-
-2. Per-base NT distribution
-    1. Use markdown to insert your 4 histograms here.
-    2. **YOUR ANSWER HERE**
-    3. **YOUR ANSWER HERE**
-    
-## Part 2
+#Makayla's Plan for Demultiplexing
+## 1. Define the problem
 We have 4 fastq files that are the raw data that have resulted from the library prep (in this case, one performed by the 2017 BGMP cohort). The 4 fastq files include the reads and barcodes (indexes). Reads 1 and 4 contain the insert reads while reads 2 and 3 contain the barcondes for those reads respectively, though read 3 contains the reverse compliment of those barcodes. 
 
 In this plan, I need to de-multiplex the data, meaning that I need to go through the 4 files to find if the forward barcodes and the reverse barcodes match per read. For those that match, thpse are considered  "dual matched". For those that do not match, they must have "hopped". For barcodes that do not match any of our existing barcodes, (those with "N"/undetermined nucleotides), those are "unknown. 
 
-2. Describe output
+## 2. Describe output
 There are 24 barcodes (indexes) for our data. Those are all listed in the indexes.txt file. We have 2 reads, forward and reverse. For each index, there will be 2 files for all of the reads that were successfully dual matched between the 2 reads. For example, all reads from read 1 with index B1 that were successfully matched with their corresponding read 2 barcode for B1 will be put into one file. Maybe this file can be called B1_R1.fq. Therefore, their corresponding reads from the read 2 file (which is our R4 file), will be in another file maybe called something like B1_R2.fq.
 
 We will do this again for all "hopped" indexed reads; an example would be the 4th record of the read 1 and 2 files have a B1 index for read 1, but a A11 index for R2. These will be stored in files maybe named unmatched_R1.fastq and unmatched_R2.fastq, regardless of their indexes, as these will be added to the headers for each record as they go into the file. This will be repeated again for all unknown files...
@@ -32,7 +15,7 @@ All unknown files are going to be reads where one or both of the indexes are not
 
 Done!
 
-4. Pseudocode
+## 4. Pseudocode
     1. Open all 4 fastq files for each of the 4 runs
     2. Go through the 4 files record by record
         3. Check if the record is considered "unknown"
@@ -49,6 +32,8 @@ Done!
                     for the hopped records, open 2 files for ALL hopped records to store read 1 and read 2.
                     for the unknown records, open 2 files for ALL unmatched records to store read 1 and read 2.
         When these records are being added, the indexes for read 1 and read 2 will be added to the end of each header line.
+        
+
 5. High level functions. For each function, be sure to include:
     1. Description/doc string
     2. Function headers (name and parameters)
