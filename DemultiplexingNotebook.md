@@ -35,3 +35,26 @@ AAFAFJJJJJJJJJJJJFFFJJFFJJJJJJJJAJFJFJJFJJJJJJJJJJJJJJJJJJJJFFJJJJJJJJJJ7-FJJJJJ
 AAAFFAFJJFFAFJAFJF-F<FJJJJJJJJJJJJFFJAJFFFJJJJJJJJJJJJJJJJJFFJJJJJFJJJJJJJAJJJJJJJJJJFFJJJFJJJJJFFJJJ
 ```
 
+## Make quality score distributions
+Histograms can be found here:
+1. [Link to Index 1 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Index1_dist.png)
+2. [Link to Index 2 histogram](Assignment-the-first/Index2_dist.png)
+3. [Link to Read 1 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Read1_dist.png)
+4. [Link to Read 2 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Read2_dist.png)
+
+Python script can be found here: /projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/qscoreDiff.py
+
+Bash script can be found here: /projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/sbatch_qscorediff.sh
+
+Time and Storage Metrics for qscoreDiff.py
+```
+Command being timed: "./qscoreDiff.py"
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:29:24
+	Maximum resident set size (kbytes): 67624
+	Exit status: 0
+```
+Picking a quality score cutoff for the indexes:
+
+A quality score of 32 would be a good quality score cut off. When looking at the index graphs, the earlier base pairs in the index have a lower average quality score around 32. If I pick a value over 32 I might miss the majority of the indexes, but selecting less than 32 might result in keeping low quality data that we cannot be as confident in. 
+
