@@ -24,17 +24,19 @@ A quality score of 30 would be a good quality score cut off. When looking at the
 
 4.	How many indexes have undetermined (N) base calls? (Utilize your command line tool knowledge. Submit the command(s) you used. CHALLENGE: use a one-line command)
 ```bash
-zcat 1294_S1_L008_R2_001.fastq.gz | grep -A1 ^"@"| grep -v ^"@" | grep -v ^"-" | wc
+zcat 1294_S1_L008_R2_001.fastq.gz | grep -A1 ^"@"| grep -v ^"@" | grep -v ^"-" | grep "N" | wc -l
 ```
-output: 363246735 363246735 3269220615
+output: 3976613
 
-There are 363,246,735 indexes in the R2 file that have undetermined ("N") base calls.
+There are 3,976,613 indexes in the R2 file that have undetermined ("N") base calls.
 ```bash
-zcat 1294_S1_L008_R3_001.fastq.gz | grep -A1 ^"@"| grep -v ^"@" | grep -v ^"-" | wc -l
+zcat 1294_S1_L008_R3_001.fastq.gz | grep -A1 ^"@"| grep -v ^"@" | grep -v ^"-" | grep "N" | wc -l
 ```
-output: 363246735
+output: 3328051 
 
-There are 363,246,735 indexes in the R3 file that have undetermined ("N") base calls. These are the same between R2 and R3...
+There are 3,328,051 indexes in the R3 file that have undetermined ("N") base calls. 
+
+These are 7,304,664 total indexes that have undetermined "N" base calls.
 
 ## Part 2
 We have 4 fastq files that are the raw data that have resulted from the library prep (in this case, one performed by the 2017 BGMP cohort). The 4 fastq files include the reads and barcodes (indexes). Reads 1 and 4 contain the insert reads while reads 2 and 3 contain the barcondes for those reads respectively, though read 3 contains the reverse compliment of those barcodes. 
