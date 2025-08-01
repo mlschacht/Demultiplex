@@ -39,6 +39,8 @@ There are 3,328,051 indexes in the R3 file that have undetermined ("N") base cal
 These are 7,304,664 total indexes that have undetermined "N" base calls.
 
 ## Part 2
+
+1. Describe input
 We have 4 fastq files that are the raw data that have resulted from the library prep (in this case, one performed by the 2017 BGMP cohort). The 4 fastq files include the reads and barcodes (indexes). Reads 1 and 4 contain the insert reads while reads 2 and 3 contain the barcondes for those reads respectively, though read 3 contains the reverse compliment of those barcodes. 
 
 In this plan, I need to de-multiplex the data, meaning that I need to go through the 4 files to find if the forward barcodes and the reverse barcodes match per read. For those that match, thpse are considered  "dual matched". For those that do not match, they must have "hopped". For barcodes that do not match any of our existing barcodes, (those with "N"/undetermined nucleotides), those are "unknown. 
@@ -49,6 +51,8 @@ There are 24 barcodes (indexes) for our data. Those are all listed in the indexe
 We will do this again for all "hopped" indexed reads; an example would be the 4th record of the read 1 and 2 files have a B1 index for read 1, but a A11 index for R2. These will be stored in files maybe named unmatched_R1.fastq and unmatched_R2.fastq, regardless of their indexes, as these will be added to the headers for each record as they go into the file. This will be repeated again for all unknown files...
 
 All unknown files are going to be reads where one or both of the indexes are not within our list of known read indexes OR the quality of the read is below the threshold. These will go out to only 2 files for each read: unknown_R1.fastq and unknown_R2.fastq. The quality threshold can be better determined once we have graphed the quality distribution of all 4 files.
+
+We will print stats to the terminal including: counts of matched read pairs with their corresponding index, total hopped indexes with their corresponding index pairs, and the total unknown index reads
 
 3. Upload your [4 input FASTQ files](../TEST-input_FASTQ) and your [>=6 expected output FASTQ files](../TEST-output_FASTQ).
 
