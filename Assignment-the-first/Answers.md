@@ -12,15 +12,15 @@ phred coding would be 33 or 64
 | 1294_S1_L008_R4_001.fastq.gz |Read 2|101|Phred 33|
 
 2. Per-base NT distribution: Use markdown to insert your 4 histograms here.
-    1. [Link to Index 1 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Index1_dist.png)
-    2. [Link to Index 2 histogram](Assignment-the-first/Index2_dist.png)
-    3. [Link to Read 1 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Read1_dist.png)
-    4. [Link to Read 2 histogram](/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/Assignment-the-first/Read2_dist.png)
+![Link to Index 1 histogram](Index1_dist.png)
+![Link to Index 2 histogram](Index2_dist.png)
+![Link to Read 1 histogram](Read1_dist.png)
+![Link to Read 2 histogram](Read2_dist.png)
 
 
 3. What is a good quality score cutoff for index reads and biological read pairs to utilize for sample identification and downstream analysis, respectively? Justify your answer.
 
-A quality score of 32 would be a good quality score cut off. When looking at the index graphs, the earlier base pairs in the index have a lower average quality score around 32. If I pick a value over 32 I might miss the majority of the indexes, but selecting less than 32 might result in keeping low quality data that we cannot be as confident in. 
+A quality score of 30 would be a good quality score cut off. When looking at the index graphs, the earlier base pairs in the index have a lower average quality score around 32. If I pick a value over 32 I might miss the majority of the indexes. It is important to keep records with high quality indexes to remain confident that the reads are categorized correctly by the sample they truly originated from. At the same time, if we only selected for quality scores of 40, there would be no data to work with. This trade off is balanced by selecting a quality score cut off of 30. Additionally, for these indexes, it seems like it would take more than 1 base pair change to accidentally misread into a different index. Therefore, for each read that has more than 1 minimum quality score below 30, this will be treated as a condition that we are unconfident to categorize for that index/sample and it will be placed in the "unknown" category. 
 
 4.	How many indexes have undetermined (N) base calls? (Utilize your command line tool knowledge. Submit the command(s) you used. CHALLENGE: use a one-line command)
 ```bash
