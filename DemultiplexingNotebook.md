@@ -44,7 +44,7 @@ Histograms can be found here:
 
 Python script can be found here: /projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/qscoreDiff.py
 
-Bash script can be found here: /projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/sbatch_qscorediff.sh
+Shell script can be found here: /projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/sbatch_qscorediff.sh
 
 Time and Storage Metrics for qscoreDiff.py
 ```
@@ -58,3 +58,5 @@ Picking a quality score cutoff for the indexes:
 
 A quality score of 32 would be a good quality score cut off. When looking at the index graphs, the earlier base pairs in the index have a lower average quality score around 32. If I pick a value over 32 I might miss the majority of the indexes, but selecting less than 32 might result in keeping low quality data that we cannot be as confident in. 
 
+## Write Demultiplexing Script
+Need to change my script idea to include opening all 52 files and leaving them open as I write into them.
