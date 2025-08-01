@@ -58,6 +58,10 @@ We will print stats to the terminal including: counts of matched read pairs with
 
 Done!
 
+- Include the appropriate number of properly formatted output FASTQ files given your input files:
+All files that were written to should have 1 record, except the unknown records. Those should have 2 records. There should be 2 written files for the B1 index, 2 files for the hopped reads, and 2 files for the unknown reads.
+
+
 ## 4. Pseudocode
     1. Open all 4 fastq files for each of the 4 runs
     2. Go through the 4 files record by record
