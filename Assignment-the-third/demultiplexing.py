@@ -2,27 +2,27 @@
 
 import bioinfo
 import argparse
+import gzip
 
-#argparse CHANGE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# def get_args():
-#     parser = argparse.ArgumentParser(description="This will find the longest protein for each gene /"
-#     "and output it to its own fastq file.")
-#     parser.add_argument("-f", "--filename", help="input file name", type = str, required = True)
-#     parser.add_argument("-o", "--outputfilename", help="what do you want the output file to be named?", type = str, required = True)
-#     return parser.parse_args()
+def get_args():
+    parser = argparse.ArgumentParser(description="This will demultiplex reads given 4 index files, a file of known index names and sequences /"
+    "and a quality score cutoff.")
+    parser.add_argument("-r1", "--read1", help="input read1 file name", type = str, required = True)
+    parser.add_argument("-r2", "--read2", help="input read2 file name", type = str, required = True)
+    parser.add_argument("-I1", "--index1", help="input index file name for read 1", type = str, required = True)
+    parser.add_argument("-I2", "--index2", help="input index file name for read 2", type = str, required = True)
+    parser.add_argument("-EI", "--expected_index_file", help="input the file that contains the list of expected index sequences and their names", type = str, required = True)
+    parser.add_argument("-qc", "--quality_cutoff", help="input a number for the quality cutoff/threshold", type = int, required = True)
+    return parser.parse_args()
 
-# args = get_args()
-# fn: str = args.filename #file name
-# outfile: str = args.outputfilename #desired output file name
-
-#variables that hold the 4 read files
-#update after adding argparse
-Read1 = "/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/R1_input_test.fq"
-Read2 = "/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/R4_input_test.fq"
-Index1 = "/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/R2_input_test.fq"
-Index2 = "/projects/bgmp/mlscha/bioinfo/Bi622/Demultiplex/TEST-input_FASTQ/R3_input_test.fq"
-known_index_file = "/projects/bgmp/shared/2017_sequencing/indexes.txt"
-quality_cutoff = 29
+#variables that hold the 4 read files, known index file, and the quality score cutoff
+args = get_args()
+Read1: str = args.read1
+Read2: str = args.read2
+Index1: str = args.index1
+Index2: str = args.index2
+known_index_file: str = args.expected_index_file
+quality_cutoff = args.quality_cutoff
 
 #initialize counters for the 3 conditions
 total_matched = 0
@@ -30,7 +30,6 @@ total_hopped = 0
 total_unknown = 0
 
 #initialize dictionaries for each condition to hold the indexes as keys and their frequencies as values
-#unknown_dict: dict = {}
 hopped_dict: dict = {}
 matched_dict: dict = {}
 
@@ -63,11 +62,7 @@ unknown_R2 = open("unknown_R2.fq", "w")
 
 matched_fn_keys = list(matched_fn_dict.keys()) #put matched file name KEYS in a list
 
-# for pos, key in enumerate(matched_fn_keys): #MIGHT NOT NEED THIS ANYMORE
-#     file_name = matched_fn_dict[key]
-#     matched_fn_dict[key] = open(file_name, "w") #open each of the matched files
-
-with open(Read1, 'r') as R1, open(Read2, 'r') as R2, open(Index1, 'r') as I1, open(Index2, 'r') as I2:
+with gzip.open(Read1, 'rt') as R1, gzip.open(Read2, 'rt') as R2, gzip.open(Index1, 'rt') as I1, gzip.open(Index2, 'rt') as I2:
     
     while True:
         #go through each file and store the next record as it's parts (header, sequence, plus line, and qscore line)
@@ -83,62 +78,63 @@ with open(Read1, 'r') as R1, open(Read2, 'r') as R2, open(Index1, 'r') as I1, op
         #update index 2 to the proper/expected index via reverse complement
         I2_seq = bioinfo.reverse_complement(I2_seq)
 
-        #check if index qscore is good (more than 1 qscores for each position are less than cutoff for each index)
-        I1_check: bool = bioinfo.qscore_check(I1_q_line, quality_cutoff, 1)
-        I2_check: bool = True #initiate to qscore is good (True)
-        if I1_check == True: #if index 1 passes quality, check index 2
-            I2_check: bool = bioinfo.qscore_check(I2_q_line, quality_cutoff, 1)
-
-        #check if read qscore is good (more than 10% of bases have qscores less than the cutoff)
-        print(int(len(R1_q_line)*0.1))
-        #R1_check: bool = bioinfo.qscore_check(R1_q_line, quality_cutoff, int(len(R1_q_line)*0.1)
-
         #Prepare the header lines by appending them with the index pairs
         R1_header = f'{R1_header} {I1_seq}-{I2_seq}'
         R2_header = f'{R2_header} {I1_seq}-{I2_seq}'
 
         #Check for the 3 conditions (matched, hopped, and unknown)
         #Check if unknown (indexes are not in database or don't pass quality check)
-        if I1_seq not in known_index_dict or I2_seq not in known_index_dict or I1_check == False or I2_check == False:
+        if I1_seq not in known_index_dict or I2_seq not in known_index_dict:
             total_unknown +=1 #increment total unkown counter
             #write out to the unknown R1 and R2 files 
-            if total_unknown > 1: #check if this is not the first record (add new line at the beginning)
-                unknown_R1.write(f'\n{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                unknown_R2.write(f'\n{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
-            else: #if it is the first record, don't add a new line at the beginning
-                unknown_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                unknown_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
-        elif I1_seq == I2_seq: #check if matched
-            total_matched +=1 #increment total matched counter
-            index_name = known_index_dict[I1_seq] #grab the index name using the sequence
-            #increment match counter for this index
-            matched_dict[index_name] += 1
-            #write out to the matched R1 and R2 files
-            if total_matched >1: #check if this is not the first record (add new line at the beginning)
-                matched_fn_dict[f'{index_name}_R1'].write(f'\n{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                matched_fn_dict[f'{index_name}_R2'].write(f'\n{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
-            else: #if it is the first record, don't add a new line at the beginning
-                matched_fn_dict[f'{index_name}_R1'].write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                matched_fn_dict[f'{index_name}_R2'].write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
-        else: #must be "hopped"
-            total_hopped += 1 #increment the total hopped counter
-            index1_name = known_index_dict[I1_seq] #grab the index 1 name using the sequence
-            index2_name = known_index_dict[I2_seq] #grab the index 2 name using the sequence
-            #increment the counter for this index pair
-            if f'{index1_name}-{index2_name}' in hopped_dict: #is it already in the dictionary? -Yes
-                hopped_dict[f'{index1_name}-{index2_name}'] +=1
-            if f'{index1_name}-{index2_name}' not in hopped_dict:  #it's not in the dictionary yet.
-                hopped_dict[f'{index1_name}-{index2_name}'] = 1
-            #write out to the hopped R1 and R2 files
-            if total_hopped > 1: #check if this is not the first record (add new line at the beginning)
-                hopped_R1.write(f'\n{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                hopped_R2.write(f'\n{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
-            else: #if it is the first record, don't add a new line at the beginning
-                hopped_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}')
-                hopped_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}')
+            unknown_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}\n')
+            unknown_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}\n')
+        else: #everything that is has indexes in the dictionary
+            #check if index qscore is good (more than 1 qscores for each position are less than cutoff for each index)
+            I1_check: bool = bioinfo.qscore_check(I1_q_line, quality_cutoff, 1)
+            I2_check: bool = True #initiate to qscore is good (True)
+            if I1_check == True: #if index 1 passes quality, check index 2
+                I2_check: bool = bioinfo.qscore_check(I2_q_line, quality_cutoff, 1)
+                if I1_check == False or I2_check == False:
+                    total_unknown +=1 #increment total unkown counter
+                    #write out to the unknown R1 and R2 files 
+                    unknown_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}\n')
+                    unknown_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}\n')
+                else: #everything that has indexes are in dictionary AND Indexes are good quality
+                    #check if read qscore is good (more than 10% of bases have qscores less than the cutoff)
+                    R1_check: bool = bioinfo.qscore_check(R1_q_line, quality_cutoff, int(len(R1_q_line)*0.1))
+                    R2_check: bool = True
+                    if R1_check == True: #if read 1 is good, check if read 2 is good
+                        R2_check: bool = bioinfo.qscore_check(R2_q_line, quality_cutoff, int(len(R2_q_line)*0.1))
+                        if R1_check == False or R2_check == False:
+                            total_unknown +=1 #increment total unkown counter
+                            #write out to the unknown R1 and R2 files 
+                            unknown_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}\n')
+                            unknown_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}\n')
+                        else: #All indexes are in the dictionary AND all indexes and reads have good quality
+                            if I1_seq == I2_seq: #check if matched
+                                total_matched +=1 #increment total matched counter
+                                index_name = known_index_dict[I1_seq] #grab the index name using the sequence
+                                #increment match counter for this index
+                                matched_dict[index_name] += 1
+                                #write out to the matched R1 and R2 files
+                                matched_fn_dict[f'{index_name}_R1'].write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}\n')
+                                matched_fn_dict[f'{index_name}_R2'].write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}\n')
+                            else: #must be "hopped"
+                                total_hopped += 1 #increment the total hopped counter
+                                index1_name = known_index_dict[I1_seq] #grab the index 1 name using the sequence
+                                index2_name = known_index_dict[I2_seq] #grab the index 2 name using the sequence
+                                #increment the counter for this index pair
+                                if f'{index1_name}-{index2_name}' in hopped_dict: #is it already in the dictionary? -Yes
+                                    hopped_dict[f'{index1_name}-{index2_name}'] +=1
+                                if f'{index1_name}-{index2_name}' not in hopped_dict:  #it's not in the dictionary yet.
+                                    hopped_dict[f'{index1_name}-{index2_name}'] = 1
+                                #write out to the hopped R1 and R2 files
+                                hopped_R1.write(f'{R1_header}\n{R1_seq}\n{R1_plus}\n{R1_q_line}\n')
+                                hopped_R2.write(f'{R2_header}\n{R2_seq}\n{R2_plus}\n{R2_q_line}\n')
 
 #Print Summary
-#Matched Reads           
+#Matched Reads
 print(f'Total Matched Reads: {total_matched}')
 print("Matched Index Name   Number of Reads")
 sorted_indexes = sorted(list(matched_dict.keys()))
