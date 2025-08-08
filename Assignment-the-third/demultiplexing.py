@@ -25,9 +25,9 @@ known_index_file: str = args.expected_index_file
 quality_cutoff = args.quality_cutoff
 
 #initialize counters for the 3 conditions
-total_matched = 0
-total_hopped = 0
-total_unknown = 0
+total_matched: int = 0
+total_hopped: int = 0
+total_unknown: int = 0
 
 #initialize dictionaries for each condition to hold the indexes as keys and their frequencies as values
 hopped_dict: dict = {}
@@ -41,11 +41,11 @@ matched_fn_dict: dict = {}
 with open(known_index_file, "r") as indexes:
     for num, line in enumerate(indexes):
         if num != 0:
-            line_list = line.split() #make a list of the items across each line
-            index_name = line_list[3] #grab the index name
-            index_seq = line_list[4] #grab the index sequence
-            R1_file_name = f'{index_name}_R1.fq'
-            R2_file_name = f'{index_name}_R2.fq'
+            line_list: list = line.split() #make a list of the items across each line
+            index_name: str = line_list[3] #grab the index name
+            index_seq: str = line_list[4] #grab the index sequence
+            R1_file_name: str = f'{index_name}_R1.fq'
+            R2_file_name: str = f'{index_name}_R2.fq'
             #store the index sequence as the key and the values as the index name
             known_index_dict[index_seq] = index_name
             #store the index name as the key and the values as a list of matched file names
@@ -76,11 +76,11 @@ with gzip.open(Read1, 'rt') as R1, gzip.open(Read2, 'rt') as R2, gzip.open(Index
             break
         
         #update index 2 to the proper/expected index via reverse complement
-        I2_seq = bioinfo.reverse_complement(I2_seq)
+        I2_seq: str = bioinfo.reverse_complement(I2_seq)
 
         #Prepare the header lines by appending them with the index pairs
-        R1_header = f'{R1_header} {I1_seq}-{I2_seq}'
-        R2_header = f'{R2_header} {I1_seq}-{I2_seq}'
+        R1_header: str = f'{R1_header} {I1_seq}-{I2_seq}'
+        R2_header: str = f'{R2_header} {I1_seq}-{I2_seq}'
 
         #Check for the 3 conditions (matched, hopped, and unknown)
         #Check if unknown (indexes are not in database or don't pass quality check)
@@ -144,7 +144,7 @@ for index in sorted_indexes:
 print(f'Total Hopped Reads: {total_hopped}')
 print("Hopped Index Pairs   Number of Reads")
 sorted_pairs = sorted(list(hopped_dict.keys()))
-for index_pair in hopped_dict:
+for index_pair in sorted_pairs:
     print(f'{index_pair}\t{hopped_dict[index_pair]}')
 #Unknown Reads
 print(f'Total Unknown Reads: {total_unknown}')
